@@ -1,0 +1,23 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+.dart_tool/
+.packages
+example/.dart_tool/
+example/.flutter-plugins
+example/.flutter-plugins-dependencies
+example/.packages
+example/android/app/src/main/java/io/
+example/android/local.properties
+example/ios/Flutter/Generated.xcconfig
+example/ios/Flutter/flutter_export_environment.sh
+example/ios/Runner/GeneratedPluginRegistrant.h
+example/ios/Runner/GeneratedPluginRegistrant.m
+example/pubspec.lock
+pubspec.lock
