@@ -272,6 +272,11 @@ class _SeekBarPainter extends CustomPainter {
 
   /// 气泡在进度条的中间显示，而不是在进度条的上方展示，默认是false，在上方显示
   bool bubbleInCenter;
+
+  LinearGradient linearGradient;
+  double indicatorBorder;
+  Color indicatorBorderColor;
+
   _SeekBarPainter(
       {this.backgroundColor,
       this.progressColor,
@@ -302,7 +307,10 @@ class _SeekBarPainter extends CustomPainter {
       this.bubbleTextColor,
       this.bubbleTextSize,
       this.bubbleMargin,
-      this.bubbleInCenter});
+      this.bubbleInCenter,
+      this.linearGradient, this.indicatorBorder,
+        this.indicatorBorderColor
+      });
 
   // 画path
   Path drawPath(double progresseight, double x, double totalHeight, double r) {
@@ -424,7 +432,15 @@ class _SeekBarPainter extends CustomPainter {
         });
       }
 
-      canvas.drawPath(drawPath(progresseight, x, size.height, radius), paint);
+      if(linearGradient!=null){
+        final path=drawPath(progresseight, x, size.height, radius);
+        final paintGradient = Paint()
+          ..shader =linearGradient
+              .createShader(path.getBounds());
+        canvas.drawPath(path, paintGradient);
+      }else{
+        canvas.drawPath(drawPath(progresseight, x, size.height, radius), paint);
+      }
       // canvas.drawRect(Offset(x, 0.0) & Size(width, size.height), paint);
     }
 
@@ -451,8 +467,39 @@ class _SeekBarPainter extends CustomPainter {
       Paint indicatorPaint = new Paint()
         ..style = PaintingStyle.fill
         ..color = indicatorColor;
-      canvas.drawCircle(Offset(value * size.width, size.height / 2),
-          indicatorRadius, indicatorPaint);
+      final center=Offset(value * size.width, size.height / 2);
+
+      final offsetCenter=Offset(center.dx, center.dy+0.5);
+      Path oval = Path()
+        ..addOval(Rect.fromCircle(center: offsetCenter, radius: indicatorRadius+(1.2/2.0)));
+      Paint shadowPaint = Paint()
+        ..color = Color(0x6666B3FF).withAlpha(100)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3);
+
+      // draw circle
+      Paint thumbPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+
+      canvas.drawCircle(offsetCenter, indicatorRadius+0.1, thumbPaint);
+      canvas.drawPath(oval, shadowPaint);
+
+
+      if(indicatorBorder>0&&indicatorBorderColor!=null){
+        Paint indicatorPaintWrap = new Paint()
+          ..style = PaintingStyle.fill
+          ..color = indicatorBorderColor;
+        canvas.drawCircle(center,
+            indicatorRadius, indicatorPaintWrap);
+        canvas.drawCircle(center,
+            indicatorRadius-indicatorBorder, indicatorPaint);
+      }else{
+        canvas.drawCircle(center,
+            indicatorRadius, indicatorPaint);
+      }
+
+
+
     }
 
     //画顶部的指示器
@@ -561,6 +608,11 @@ class SeekBar extends BasicSeekbar {
   double bubbleMargin;
   bool bubbleInCenter;
 
+  LinearGradient linearGradient;
+  double indicatorBorder;
+  Color indicatorBorderColor;
+
+
   /// 是否可以触摸响应触摸事件
   bool isCanTouch;
   SeekBar({
@@ -613,6 +665,10 @@ class SeekBar extends BasicSeekbar {
     this.bubbleInCenter = false,
     this.alwaysShowBubble,
     this.isCanTouch = true,
+    this.linearGradient,
+    this.indicatorBorder,
+    this.indicatorBorderColor,
+
   })  : this.hideBubble = hideBubble ?? true,
         this.bubbleRadius = bubbleRadius ?? 20,
         super(
@@ -761,6 +817,9 @@ class _SeekBarState extends State<SeekBar> {
             bubbleTextSize: widget.bubbleTextSize,
             bubbleMargin: widget.bubbleMargin,
             bubbleInCenter: widget.bubbleInCenter,
+            linearGradient:widget.linearGradient,
+            indicatorBorder:widget.indicatorBorder,
+            indicatorBorderColor:widget.indicatorBorderColor,
           ),
         ),
       ),
